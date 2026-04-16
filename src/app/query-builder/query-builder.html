@@ -1,1 +1,126 @@
-<p>query-builder works!</p>
+<div class="builder-root">
+  <!-- Root Group -->
+  <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: query(), isRoot: true }"></ng-container>
+
+ <div class="submit-section">
+  <button mat-raised-button
+        color="primary"
+        (click)="onSubmit()"
+        [disabled]="!isQueryValid()">
+  Submit
+</button>
+
+  <button mat-raised-button  [disabled]="isQueryEmpty()" (click)="onClear()"
+    >
+    Clear  
+  </button>
+</div>
+
+   @if (finalQuery) {
+ 
+  <div class="debug-panel">
+    <pre>{{ finalQuery | json }}</pre>
+  </div>} 
+
+</div>
+
+<ng-template #groupTemplate let-group let-isRoot="isRoot">
+  <div class="group-container" [class.is-root]="isRoot">
+
+    <!-- Header -->
+    <div class="group-header">
+
+             <mat-select [(ngModel)]="group.condition" class="condition-select">
+                 <mat-option *ngFor="let condition of conditions" [value]="condition">
+                  {{ condition }}
+                </mat-option>
+              </mat-select>
+
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="addRule(group)">
+          + Rule
+        </button>
+
+        <button mat-raised-button color="accent" (click)="addGroup(group)">
+          + Group
+        </button>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="children-wrapper" *ngIf="group.rules.length > 0">
+      <div *ngFor="let item of group.rules; let i = index" class="tree-node">
+
+        <!-- GROUP -->
+        <div *ngIf="isGroup(item)" class="nested-group-wrapper">
+          <ng-container *ngTemplateOutlet="groupTemplate; context: { $implicit: item, isRoot: false }"></ng-container>
+          <button class="btn btn-remove" (click)="removeRule(group, i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+
+        <!-- RULE -->
+        <div *ngIf="!isGroup(item)" class="rule-row">
+          <div class="rule-inputs">
+
+            <!-- FIELD -->
+            <mat-form-field appearance="outline">
+              <mat-label>Field</mat-label>
+              <mat-select [(ngModel)]="item.field" (selectionChange)="onFieldChange(item)">
+                 <mat-option *ngFor="let field of fields" [value]="field">
+                  {{ field.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- OPERATOR -->
+            <mat-form-field appearance="outline">
+              <mat-label>Operator</mat-label>
+              <mat-select [(ngModel)]="item.operator">
+                <mat-option *ngFor="let op of operators" [value]="op.value">
+                  {{ op.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- VALUE -->
+            <ng-container [ngSwitch]="item.field?.type">
+
+              <!-- TEXT -->
+              <mat-form-field appearance="outline" *ngSwitchCase="'text'">
+                <mat-label>Value</mat-label>
+                <input matInput [(ngModel)]="item.value">
+              </mat-form-field>
+
+              <!-- DATE -->
+              <mat-form-field appearance="outline" *ngSwitchCase="'date'">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="item.value">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+
+              <!-- SELECT -->
+              <mat-form-field appearance="outline" *ngSwitchCase="'select'">
+                <mat-label>Value</mat-label>
+                <mat-select [(ngModel)]="item.value">
+                  <mat-option *ngFor="let opt of item.field?.options" [value]="opt">
+                    {{ opt }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+            </ng-container>
+
+          </div>
+
+          <!-- DELETE -->
+          <button mat-icon-button color="warn" [disabled]="(1 >= group?.rules?.length)" (click)="removeRule(group, i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
