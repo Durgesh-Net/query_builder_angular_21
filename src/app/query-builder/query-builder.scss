@@ -1,0 +1,209 @@
+/* Root Container */
+.builder-root {
+  padding: 40px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Group Card Styling */
+.group-container {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  &.is-root {
+    border: 2px solid #3b82f6; // Blue border for main container
+  }
+
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 2;
+    position: relative;
+  }
+}
+
+/* --- THE RELATIONAL LINES --- */
+
+.children-wrapper {
+  position: relative;
+  margin-top: 20px;
+  padding-left: 40px; // Horizontal space for the lines
+
+  /* Vertical Spine */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* Start from the header select */
+    bottom: 0;
+    /* Stop at the last child's horizontal arm */
+    width: 2px;
+    background-color: #94a3b8;
+    /* Visible Slate Gray */
+  }
+}
+
+.tree-node {
+  position: relative;
+  margin-bottom: 15px;
+
+  /* Horizontal Connection Arm */
+  &::before {
+    content: '';
+    position: absolute;
+    left: -40px;
+    /* Match children-wrapper padding */
+    top: 25px;
+    /* Align with middle of rule-row */
+    width: 40px;
+    height: 2px;
+    background-color: #94a3b8;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -40px;
+      top: 25px; // same as horizontal line
+      bottom: -20px;
+      width: 2px;
+
+      /* Match background to "erase" extra line */
+      background: white; // same as .builder-root bg
+    }
+  }
+}
+
+/* --- BUTTONS (Green, Blue, Red) --- */
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  span {
+    font-size: 18px;
+    line-height: 0;
+  }
+}
+
+/* Green: Add Rule */
+.btn-add-rule {
+  background-color: #10b981;
+  color: white;
+
+  &:hover {
+    background-color: #059669;
+  }
+}
+
+/* Blue: Add Group */
+.btn-add-group {
+  background-color: #3b82f6;
+  color: white;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+}
+
+/* Red: Remove/Delete */
+.btn-remove {
+  background-color: #ef4444;
+  color: white;
+
+  &:hover {
+    background-color: #dc2626;
+  }
+}
+
+.delete-group-btn {
+  margin-left: 40px;
+  margin-top: 8px;
+}
+
+/* --- FORM INPUTS --- */
+
+.rule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+
+  .rule-inputs {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+  }
+}
+
+.input-field,
+.input-select,
+.condition-select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  outline: none;
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.condition-select {
+  font-weight: 800;
+  color: #1e293b;
+  max-width: 80px;
+}
+
+.debug-panel {
+  margin-top: 40px;
+  padding: 20px;
+  background: #1e293b;
+  color: #f8fafc;
+  border-radius: 8px;
+
+  pre {
+    font-size: 12px;
+    overflow: auto;
+  }
+}
+
+.action-buttons,
+.nested-group-wrapper {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.submit-section {
+  display: flex;
+  padding-top: 12px;
+  gap: 20px;
+  justify-content: end;
+}
