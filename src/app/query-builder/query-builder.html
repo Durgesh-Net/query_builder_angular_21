@@ -37,11 +37,11 @@
               </mat-select>
 
       <div class="action-buttons">
-        <button mat-raised-button color="primary" (click)="addRule(group)">
+        <button mat-raised-button color="primary" [disabled]="!isQueryValid()" (click)="addRule(group)">
           + Rule
         </button>
 
-        <button mat-raised-button color="accent" (click)="addGroup(group)">
+        <button mat-raised-button color="accent" [disabled]="!isQueryValid()" (click)="addGroup(group)">
           + Group
         </button>
       </div>
