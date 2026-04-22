@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { QueryBuilder } from './query-builder/query-builder';
+ import { ExampleComponent } from './example-component/example-component';
 
 export const routes: Routes = [
          {
     path: '',
-    component: QueryBuilder,
+    component: ExampleComponent,
   },
 ];

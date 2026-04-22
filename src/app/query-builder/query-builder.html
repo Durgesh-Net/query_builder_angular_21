@@ -16,7 +16,7 @@
   </button>
 </div>
 
-   @if (finalQuery) {
+   @if (isSubmitted && finalQuery) {
  
   <div class="debug-panel">
     <pre>{{ finalQuery | json }}</pre>
@@ -65,52 +65,52 @@
 
             <!-- FIELD -->
             <mat-form-field appearance="outline">
-              <mat-label>Field</mat-label>
-              <mat-select [(ngModel)]="item.field" (selectionChange)="onFieldChange(item)">
-                 <mat-option *ngFor="let field of fields" [value]="field">
-                  {{ field.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+  <mat-label>Field</mat-label>
+  <mat-select [(ngModel)]="item.field" (selectionChange)="onFieldChange(item)">
+    <mat-option *ngFor="let field of fields" [value]="field">
+      {{ field.label }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
 
             <!-- OPERATOR -->
-            <mat-form-field appearance="outline">
-              <mat-label>Operator</mat-label>
-              <mat-select [(ngModel)]="item.operator">
-                <mat-option *ngFor="let op of operators" [value]="op.value">
-                  {{ op.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+           <mat-form-field appearance="outline">
+  <mat-label>Operator</mat-label>
+  <mat-select [(ngModel)]="item.operator">
+    <mat-option *ngFor="let op of item.field?.operators" [value]="op.value">
+      {{ op.label }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
 
             <!-- VALUE -->
-            <ng-container [ngSwitch]="item.field?.type">
+            <ng-container *ngIf="item.field">
 
-              <!-- TEXT -->
-              <mat-form-field appearance="outline" *ngSwitchCase="'text'">
-                <mat-label>Value</mat-label>
-                <input matInput [(ngModel)]="item.value">
-              </mat-form-field>
+  <!-- INPUT -->
+  <mat-form-field appearance="outline" *ngIf="item.field.controlType === 'input'">
+    <mat-label>Value</mat-label>
+    <input matInput [(ngModel)]="item.value" />
+  </mat-form-field>
 
-              <!-- DATE -->
-              <mat-form-field appearance="outline" *ngSwitchCase="'date'">
-                <mat-label>Date</mat-label>
-                <input matInput [matDatepicker]="picker" [(ngModel)]="item.value">
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+  <!-- DATE -->
+  <mat-form-field appearance="outline" *ngIf="item.field.controlType === 'date'">
+    <mat-label>Date</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="item.value">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
 
-              <!-- SELECT -->
-              <mat-form-field appearance="outline" *ngSwitchCase="'select'">
-                <mat-label>Value</mat-label>
-                <mat-select [(ngModel)]="item.value">
-                  <mat-option *ngFor="let opt of item.field?.options" [value]="opt">
-                    {{ opt }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
+  <!-- SELECT -->
+  <mat-form-field appearance="outline" *ngIf="item.field.controlType === 'select'">
+    <mat-label>Value</mat-label>
+    <mat-select [(ngModel)]="item.value">
+      <mat-option *ngFor="let opt of item.field.options" [value]="opt.value">
+        {{ opt.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 
-            </ng-container>
+</ng-container>
 
           </div>
 

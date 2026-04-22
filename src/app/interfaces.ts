@@ -1,8 +1,19 @@
 export interface Field {
-  name: string;
-  type: 'text' | 'date' | 'select';
-  operators: { name: string; value: string }[];
-  options?: string[];
+  name: string;          // backend key
+  label: string;         // UI label
+
+  type: 'text' | 'date' | 'select' | 'number';
+
+  operators: {
+    label: string;
+    value: string;
+  }[];
+
+  // for dropdown
+  options?: { label: string; value: any }[];
+
+  // decides UI control
+  controlType: 'input' | 'select' | 'date';
 }
 
 export interface QueryRule {

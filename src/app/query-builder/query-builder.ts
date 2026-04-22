@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, signal, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { QueryGroup, QueryRule, Field } from '../interfaces';
-
 @Component({
   selector: 'querybuilder',
   standalone: true,
@@ -28,42 +27,11 @@ import { QueryGroup, QueryRule, Field } from '../interfaces';
   styleUrl: './query-builder.scss',
 })
 export class QueryBuilder {
-  @Input({ required: true }) fields: Field[] = [
-    {
-      name: "Name",
-      type: "text",
-      operators: [
-        { name: "Equal to", value: "=" },
-        { name: "Not Equal to", value: "!=" },
-        { name: "Contains", value: "contains" }
-      ]
-    },
-    {
-      name: "Date",
-      type: "date",
-      operators: [
-        { name: "Before", value: "<" },
-        { name: "After", value: ">" }
-      ]
-    },
-    {
-      name: "Status",
-      type: "select",
-      options: ["Active", "Inactive", "Pending"],
-      operators: [
-        { name: "Equal to", value: "=" },
-        { name: "Not Equal to", value: "!=" }
-      ]
-    }
-  ];
+  @Input({ required: true }) fields!: Field[];
   @Input() conditions: string[] = ['AND', 'OR'];
-  @Input() operators: { name: string; value: string }[] = [
-    { name: "Equal to", value: "=" },
-    { name: "Not Equal to", value: "!=" },
-    { name: "Contains", value: "contains" },
-    { name: "Before", value: "<" },
-    { name: "After", value: ">" }
-  ];
+  @Input() operators =[];
+  @Output() submitQuery = new EventEmitter<any>();
+  isSubmitted = false;
 
   finalQuery: any = null;
   query = signal<QueryGroup>({
@@ -77,46 +45,53 @@ export class QueryBuilder {
     ]
   });
 
-  addRule(group: QueryGroup) {
-    group.rules.push({
-      field: null,
-      operator: '',
-      value: ''
-    });
-  }
+addRule(group: QueryGroup) {
+  group.rules.push({
+    field: null,
+    operator: '',
+    value: ''
+  });
+  this.invalidateQuery();
+}
 
-  addGroup(group: QueryGroup) {
-    group.rules.push({
-      condition: 'AND',
-      rules: [
-        {
-          field: null,
-          operator: '',
-          value: ''
-        }
-      ]
-    });
-  }
+private invalidateQuery() {
+  this.isSubmitted = false;
+  this.finalQuery = null;
+}
 
-  removeRule(group: QueryGroup, index: number) {
-    group.rules.splice(index, 1);
-  }
+addGroup(group: QueryGroup) {
+  group.rules.push({
+    condition: 'AND',
+    rules: [{ field: null, operator: '', value: '' }]
+  });
+  this.invalidateQuery();
+}
+ 
+removeRule(group: QueryGroup, index: number) {
+  group.rules.splice(index, 1);
+
+  this.query.update(q => ({ ...q })); // trigger change
+  this.invalidateQuery();
+}
 
   isGroup(item: any): item is QueryGroup {
     return 'condition' in item;
   }
 
-  onFieldChange(rule: QueryRule) {
-    rule.operator = '';
-    rule.value = '';
-  }
+onFieldChange(rule: QueryRule) {
+  rule.operator = '';
+  rule.value = null;
+  this.invalidateQuery();
+}
 
+onSubmit() {
+  const cleanQuery = this.buildCleanQuery(this.query());
 
-  onSubmit() {
-    this.finalQuery = this.buildCleanQuery(this.query());
-    console.log('Final JSON:', this.finalQuery);
-  }
+  this.finalQuery = cleanQuery;
+  this.isSubmitted = true;
 
+  this.submitQuery.emit(cleanQuery);
+}
   buildCleanQuery(group: QueryGroup): any {
     const rules = group.rules
       .map(rule => {
@@ -147,14 +122,14 @@ export class QueryBuilder {
   }
 
   onClear() {
-    this.query.set({
-      condition: 'AND',
-      rules: [
-        { field: null, operator: '', value: '' }
-      ]
-    });
-    this.finalQuery = null;
-  }
+  this.query.set({
+    condition: 'AND',
+    rules: [{ field: null, operator: '', value: '' }]
+  });
+
+  this.finalQuery = null;
+  this.isSubmitted = false; 
+}
 
   isQueryValid(group: QueryGroup = this.query()): boolean {
   if (!group.rules.length) return false;
